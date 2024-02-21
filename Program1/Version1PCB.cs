@@ -9,6 +9,9 @@ namespace Program1
     */
     public class Version1PCB
     {
+        int parent = -1;
+        LinkedList<int> children = new LinkedList<int>();
 
+        
     }
 }
