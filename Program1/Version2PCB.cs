@@ -10,6 +10,7 @@ namespace Program1
     */
     public class Version2PCB
     {
-
+        int parent = -1;
+        int firstChild, youngerSibling, olderSibling;
     }
 }
