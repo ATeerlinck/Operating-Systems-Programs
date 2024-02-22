@@ -14,6 +14,8 @@ namespace Program1
      * classes, methods, and data structures that you need to solve the
      * problem and display your solution in the correct format.
      */
+
+     //IMPORTANT: the number "-1" is used to denote two things, depending on the field it is in. In the parent field, the process is a parentless process. In any other pcb field, it is empty/unallocated.
     public class Version1
     {
         // Declare any class/instance variables that you need here.
@@ -40,17 +42,18 @@ namespace Program1
             // If parentPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
-            if(!pcbArray.Where(p => p.processID == parentPid).Exists() && parentPid > 0){
+            if(!pcbArray.Any(p => p.processID == parentPid) && parentPid > 0){
                 return 1;
             }
             // Assuming you've found the PCB for parentPid in the PCB array:
             // 1. Allocate and initialize a free PCB object from the array
             //    of PCB objects
-            if(pcbArray.contains(null)) pcbArray.Where(p => p.processID == targetPid).First().Value = new Version1PCB(parentPid, pcbArray.Where(p => p == null).First()/*need location number in pcbArray*/);
-            else pcbArray.AddLast(new Version1PCB(parentPid, pcbCount));
+            Version1PCB newPCB = new Version1PCB(parentPid, pcbArray.Any(p => p.processID == -1) ? firstNull() : pcbCount);
+            if(pcbArray.Any(p => p.processID == -1)) pcbArray.Find(pcbArray.Where(p => p.processID == -1).First()).Value = newPCB;
+            else pcbArray.AddLast(newPCB);
             // 2. Insert the newly allocated PCB object into parentPid's
             //    list of children
-            pcbArray.ElementAt(parentPid+1).AddChild(pcbCount);
+            pcbArray.ElementAt(parentPid+1).AddChild(newPCB.processID);
             pcbCount++;
             // You can decide what the return value(s), if any, should be.
             // If you change the return type/value(s), update the XML.
@@ -66,7 +69,7 @@ namespace Program1
             // If targetPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
-            if(!pcbArray.Where(p => p.processID == targetPid).Exists){
+            if(!pcbArray.Where(p => p.processID == targetPid).Any()){
                 return 1;
             }
             Version1PCB targetPcb = pcbArray.Where(p => p.processID == targetPid).First();
@@ -84,7 +87,7 @@ namespace Program1
             /* What am I supposed to do about this? */
             // 3. Deallocate targetPid's PCB and mark its PCB array entry
             //    as "free"
-            pcbArray.Find(targetPcb).Value = null;
+            pcbArray.Find(targetPcb).Value = new Version1PCB(-1,-1);
             // You can decide what the return value(s), if any, should be.
             // If you change the return type/value(s), update the XML.
             return 0; // often means "success" or "terminated normally"
@@ -103,9 +106,17 @@ namespace Program1
         void showProcessInfo()
         {
             foreach(Version1PCB p in pcbArray){
-                
-                Console.Write(p != null ? "Process " + p.processID + ": parent is " + p.parent + " and " + ((p.ListChildren().Count() > 0) ? "children are " + p.ListChildren().toString() : "has no children\n"): ""); 
+                Console.Write(p.processID > -1 ? "Process " + p.processID + ": parent is " + p.parent + " and " + ((p.ListChildren().Count > 0) ? "children are " + p.ListChildren().ToString() : "has no children\n"): ""); 
             }
+        }
+
+        int firstNull(){
+            int index = 0;
+            while(index < pcbArray.Count){
+                if(pcbArray.ElementAt(index).Equals(null)) break;
+                index++;
+            }
+            return index;
         }
 
         /* If you need or want more methods, feel free to add them. */

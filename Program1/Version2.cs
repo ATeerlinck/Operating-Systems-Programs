@@ -2,6 +2,9 @@
  * Name:
  */
 
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+
 namespace Program1
 {
     /** 
@@ -14,6 +17,8 @@ namespace Program1
      * classes, methods, and data structures that you need to solve the
      * problem and display your solution in the correct format.
      */
+
+     //IMPORTANT: the number "-1" is used to denote two things, depending on the field it is in. In the parent field, the process is a parentless process. In any other pcb field, it is empty/unallocated.
     public class Version2
     {
         // Declare any class/instance variables that you need here.
@@ -40,24 +45,26 @@ namespace Program1
             // If parentPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
-            if(!pcbArray.Where(p => p.processID == targetPid).Exists() && parentPid > 0){
+            if(!pcbArray.Where(p => p.processID == parentPid).Any() && parentPid > 0){
                 return 1;
             }
             // Assuming you've found the PCB for parentPid in the PCB array:
             // 1. Allocate and initialize a free PCB object from the array
             //    of PCB objects
-            Version2PCB newPCB = new Version2PCB(parentPid, (pcbArray.contains(null) ? pcbArray.Where(p => p == null).First()/*need location number in pcbArray*/: pcbCount))
+            Version2PCB newPCB = new Version2PCB(parentPid, pcbArray.Any(p => p.processID == -1) ? firstNull() : pcbCount);
             
             // 2. Connect the new PCB object to its parent, its older
             //    sibling (if any), and its younger sibling (if any)
-            if(pcbArray.ElementAt(parentPid).getFirstChild() == null) pcbArray.ElementAt(parentPid).setFirstChild(newPCB.processID);
+            if(pcbArray.ElementAt(parentPid).firstChild == -1) pcbArray.ElementAt(parentPid).firstChild = newPCB.processID;
             else{
-                Version2PCB sibling = pcbArray.ElementAt(pcbArray.ElementAt(parentPid).getFirstChild());
-                while(pcbArray.ElementAt(sibling).getYoungerSibling() != null) sibling = pcbArray.ElementAt(subling.getYoungerSibling)
-                sibling.setYoungerSibling(newPCB.getProcessID());
-                newPCB.setOlderSibling(sibling.processID());
+                Version2PCB sibling = pcbArray.ElementAt(pcbArray.ElementAt(parentPid).firstChild);
+                while(!pcbArray.ElementAt(sibling.processID).youngerSibling.Equals(-1)) sibling = pcbArray.ElementAt(sibling.youngerSibling);
+                sibling.youngerSibling = newPCB.processID;
+                newPCB.olderSibling = sibling.processID;
             }
-            if(pcbArray.contains(null)) pcbArray.Where(p => p.processID == parentPid).First().Value = newPCB);
+            if(pcbArray.Any(p => p.processID == -1)){ 
+                pcbArray.Find(pcbArray.Where(p => p.processID == -1).First()).Value = newPCB;
+            }
             else {
                 pcbArray.AddLast(newPCB);
                 pcbCount++;
@@ -77,7 +84,7 @@ namespace Program1
             // If targetPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
-            if(!pcbArray.Where(p => p.processID == targetPid).Exists){
+            if(!pcbArray.Any(p => p.processID == targetPid)){
                 return 1;
             }
             // Assuming you've found the PCB for targetPid in the PCB array:
@@ -86,12 +93,15 @@ namespace Program1
             //    (i.e., deallocate them)
             Version2PCB targetPcb = pcbArray.Where(p => p.processID == targetPid).First();
             // 2. Remove targetPid from its parent's list of children
-            pcbArray.ElementAt(targetPcb.getOlderSibling()).setYoungerSibling(targetPcb.getYoungerSibling());
-            pcbArray.ElementAt(targetPcb.setYoungerSibling()).getOlderSibling(targetPcb.getOlderSibling());
-            if(pcbArray.ElementAt(targetPcb.getParent()).getFirstChild() == targetPcb.processID()) pcbArray.ElementAt(targetPcb.getParent()).setFirstChild(targetPcb.getYoungerSibling());
+            pcbArray.ElementAt(targetPcb.olderSibling).youngerSibling = targetPcb.youngerSibling;
+            pcbArray.ElementAt(targetPcb.youngerSibling).olderSibling = targetPcb.olderSibling;
+            if(pcbArray.ElementAt(targetPcb.parent).firstChild == targetPcb.processID) pcbArray.ElementAt(targetPcb.parent).firstChild = targetPcb.youngerSibling;
             // 3. Deallocate targetPid's PCB and mark its PCB array entry
             //    as "free"
-            pcbArray.Find(targetPcb).Value = null;
+            pcbArray.ElementAt(targetPid).processID = -1;
+            pcbArray.ElementAt(targetPid).firstChild = -1;
+            pcbArray.ElementAt(targetPid).olderSibling = -1;
+            pcbArray.ElementAt(targetPid).youngerSibling = -1;
             // You can decide what the return value(s), if any, should be.
             // If you change the return type/value(s), update the XML.
             return 0; // often means "success" or "terminated normally"
@@ -109,18 +119,27 @@ namespace Program1
         */
         void showProcessInfo()
         {
-            string children = ""
+            string children = "";
             foreach(Version2PCB p in pcbArray){
-                if(p.firstChild != null){
-                    children = "" + pcbArray.ElementAt(pcbArray.ElementAt(p).getFirstChild());
-                    Version2PCB sibling = pcbArray.ElementAt(pcbArray.ElementAt(p).getFirstChild());
-                    while(sibling != null){
-                        children += ", " + pcbArray.ElementAt(pcbArray.ElementAt(p).getFirstChild();
-                        sibling = pcbArray.ElementAt(pcbArray.ElementAt(sibling).getYoungerSibling());
+                if(p.firstChild != -1){
+                    children = "" + p.firstChild;
+                    Version2PCB sibling = pcbArray.ElementAt(p.firstChild);
+                    while(sibling.youngerSibling != -1){
+                        children += ", " + sibling.youngerSibling;
+                        sibling = pcbArray.ElementAt(sibling.youngerSibling);
                     }
                 }
-                Console.Write(p != null ? "Process " + p.processID + ": parent is " + p.parent + " and " + ((p.firstChild != null) ? "children are " + children + "\n" : "has no children\n"): ""); 
+                Console.Write(p.processID > -1 ? "Process " + p.processID + ": parent is " + p.parent + " and " + ((p.firstChild != -1) ? "children are " + children + "\n" : "has no children\n"): ""); 
             }
+        }
+
+        int firstNull(){
+            int index = 0;
+            while(index < pcbArray.Count){
+                if(pcbArray.ElementAt(index).Equals(null)) break;
+                index++;
+            }
+            return index;
         }
 
         /* If you need or want more methods, feel free to add them. */

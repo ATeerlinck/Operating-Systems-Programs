@@ -20,6 +20,8 @@ namespace Program1
         {
             parent = p;
             processID = i;
+            firstChild = -1;
+            youngerSibling = -1;
         }
     }
 }
