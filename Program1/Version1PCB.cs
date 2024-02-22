@@ -9,9 +9,28 @@ namespace Program1
     */
     public class Version1PCB
     {
-        int parent = -1;
-        LinkedList<int> children = new LinkedList<int>();
+        public int parent { get; set; }
+        public int processID { get; set; }
+        LinkedList<int> children;
 
-        
+        public Version1PCB(int p, int i)
+        {
+            parent = p;
+            processID = i;
+            children = new LinkedList<int>();
+        }
+
+        public void AddChild(int cID){
+            children.AddLast(cID);
+        }
+
+        public LinkedList<int> ListChildren(){
+            return children;
+        }
+
+        public void RemoveChild(int targetId){
+            children.Remove(targetId);
+        }
+
     }
 }

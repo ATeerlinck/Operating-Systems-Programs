@@ -1,7 +1,7 @@
 /* COMPSCI 424 Program 1
  * Name:
  */
-
+using System.Collections.Generic;
 namespace Program1
 {
     /** 
@@ -17,7 +17,8 @@ namespace Program1
     public class Version1
     {
         // Declare any class/instance variables that you need here.
-
+        LinkedList<Version1PCB> pcbArray;
+        int pcbCount = 0;
         /**
         * Default constructor. Use this to allocate (if needed) and
         * initialize the PCB array, create the PCB for process 0, and do
@@ -25,7 +26,8 @@ namespace Program1
         */
         public Version1()
         {
-
+            pcbArray = new LinkedList<Version1PCB>();
+            create(-1);
         }
 
 
@@ -38,14 +40,14 @@ namespace Program1
             // If parentPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
-
             // Assuming you've found the PCB for parentPid in the PCB array:
             // 1. Allocate and initialize a free PCB object from the array
             //    of PCB objects
-
+            pcbArray.AddLast(new Version1PCB(parentPid, pcbCount));
             // 2. Insert the newly allocated PCB object into parentPid's
             //    list of children
-
+            pcbArray.ElementAt(parentPid+1).AddChild(pcbCount);
+            pcbCount++;
             // You can decide what the return value(s), if any, should be.
             // If you change the return type/value(s), update the XML.
             return 0; // often means "success" or "terminated normally"
@@ -60,12 +62,19 @@ namespace Program1
             // If targetPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
-
+            if(pcbArray.Where(p => p.processID == targetPid).Equals(false)){
+                return targetPid;
+            }
+            Version1PCB targetPcb = pcbArray.Where(p => p.processID == targetPid).First();
             // Assuming you've found the PCB for targetPid in the PCB array:
             // 1. Recursively destroy all descendants of targetPid, if it
             //    has any, and mark their PCBs as "free" in the PCB array 
             //    (i.e., deallocate them)
-
+            foreach (int v in targetPcb.ListChildren())
+            {
+                destroy(v);
+                targetPcb.RemoveChild(v);
+            }
             // 2. Adjust connections within the hierarchy graph as needed to
             //    re-connect the graph
 
