@@ -40,13 +40,13 @@ namespace Program1
             // If parentPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
-            if(!pcbArray.Where(p => p.processID == targetPid).Exists() && parentPid > 0){
+            if(!pcbArray.Where(p => p.processID == parentPid).Exists() && parentPid > 0){
                 return 1;
             }
             // Assuming you've found the PCB for parentPid in the PCB array:
             // 1. Allocate and initialize a free PCB object from the array
             //    of PCB objects
-            if(pcbArray.contains(null)) pcbArray.Where(p => p.processID == targetPid).First().Value = new Version1PCB(parentPid, pcbCount);
+            if(pcbArray.contains(null)) pcbArray.Where(p => p.processID == targetPid).First().Value = new Version1PCB(parentPid, pcbArray.Where(p => p == null).First()/*need location number in pcbArray*/);
             else pcbArray.AddLast(new Version1PCB(parentPid, pcbCount));
             // 2. Insert the newly allocated PCB object into parentPid's
             //    list of children
