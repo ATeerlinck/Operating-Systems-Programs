@@ -14,6 +14,7 @@ namespace Program1
         public int firstChild {get; set;}
         public int youngerSibling {get; set;}
         public int olderSibling {get; set;}
+        public int processID { get; set; }
         
         public Version2PCB(int p, int i)
         {
