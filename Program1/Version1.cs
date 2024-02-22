@@ -46,7 +46,8 @@ namespace Program1
             // Assuming you've found the PCB for parentPid in the PCB array:
             // 1. Allocate and initialize a free PCB object from the array
             //    of PCB objects
-            pcbArray.AddLast(new Version1PCB(parentPid, pcbCount));
+            if(pcbArray.contains(null)) pcbArray.Where(p => p.processID == targetPid).First().Value = new Version1PCB(parentPid, pcbCount);
+            else pcbArray.AddLast(new Version1PCB(parentPid, pcbCount));
             // 2. Insert the newly allocated PCB object into parentPid's
             //    list of children
             pcbArray.ElementAt(parentPid+1).AddChild(pcbCount);
@@ -83,7 +84,7 @@ namespace Program1
             /* What am I supposed to do about this? */
             // 3. Deallocate targetPid's PCB and mark its PCB array entry
             //    as "free"
-            pcbArray.Remove(targetPcb);
+            pcbArray.Find(targetPcb).Value = null;
             // You can decide what the return value(s), if any, should be.
             // If you change the return type/value(s), update the XML.
             return 0; // often means "success" or "terminated normally"
@@ -103,7 +104,7 @@ namespace Program1
         {
             foreach(Version1PCB p in pcbArray){
                 
-                Console.WriteLine("Process " + p.processID + ": parentis " + p.parent + " and " + ((p.ListChildren().Count() > 0) ? "children are " + p.ListChildren().toString() : "has no children")); 
+                Console.Write(p != null ? "Process " + p.processID + ": parent is " + p.parent + " and " + ((p.ListChildren().Count() > 0) ? "children are " + p.ListChildren().toString() : "has no children\n"): ""); 
             }
         }
 
