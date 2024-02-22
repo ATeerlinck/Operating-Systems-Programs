@@ -40,6 +40,9 @@ namespace Program1
             // If parentPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
+            if(!pcbArray.Where(p => p.processID == targetPid).Exists() && parentPid > 0){
+                return 1;
+            }
             // Assuming you've found the PCB for parentPid in the PCB array:
             // 1. Allocate and initialize a free PCB object from the array
             //    of PCB objects
@@ -62,8 +65,8 @@ namespace Program1
             // If targetPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
-            if(pcbArray.Where(p => p.processID == targetPid).Equals(false)){
-                return targetPid;
+            if(!pcbArray.Where(p => p.processID == targetPid).Exists){
+                return 1;
             }
             Version1PCB targetPcb = pcbArray.Where(p => p.processID == targetPid).First();
             // Assuming you've found the PCB for targetPid in the PCB array:
@@ -77,10 +80,10 @@ namespace Program1
             }
             // 2. Adjust connections within the hierarchy graph as needed to
             //    re-connect the graph
-
+            /* What am I supposed to do about this? */
             // 3. Deallocate targetPid's PCB and mark its PCB array entry
             //    as "free"
-
+            pcbArray.Remove(targetPcb);
             // You can decide what the return value(s), if any, should be.
             // If you change the return type/value(s), update the XML.
             return 0; // often means "success" or "terminated normally"
@@ -98,7 +101,10 @@ namespace Program1
         */
         void showProcessInfo()
         {
-
+            foreach(Version1PCB p in pcbArray){
+                
+                Console.WriteLine("Process " + p.processID + ": parentis " + p.parent + " and " + ((p.ListChildren().Count() > 0) ? "children are " + p.ListChildren().toString() : "has no children")); 
+            }
         }
 
         /* If you need or want more methods, feel free to add them. */
