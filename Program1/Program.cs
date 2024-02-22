@@ -32,15 +32,18 @@ namespace Program1
         {
             // Declare any class/instance variables that you need here.
             string choice = "";
-            while (choice.ToLower() != "end"){
-
-            } 
+            
+            
 
             
             // 1. Ask the user to enter commands of the form "create N",
             //    "destroy N", or "end", where N is an integer between 0 
             //    and 15.
-
+            while (true){
+            Console.WriteLine("PCB Program. Use Create N, destroy N, or end, where N is a value between 0 or 15 inclusive. typing anything else will propmt you again")
+            string[] input = choice.split(" ");
+            switch
+            int = (int) input[1];
             // 2. While the user has not typed "end", continue accepting
             //    commands. Add each command to a list of actions to take 
             //    while you run the simulation.
@@ -72,6 +75,7 @@ namespace Program1
 
             // This line is here just to test the Gradle build procedure.
             // You can delete it.
+            }
             Console.WriteLine("Builds without errors and runs to completion.");
         }
     }
