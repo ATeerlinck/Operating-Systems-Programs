@@ -20,15 +20,18 @@ namespace Program1
             children = new LinkedList<int>();
         }
 
-        public void AddChild(int cID){
+        public void AddChild(int cID)
+        {
             children.AddLast(cID);
         }
 
-        public LinkedList<int> ListChildren(){
+        public LinkedList<int> ListChildren()
+        {
             return children;
         }
 
-        public void RemoveChild(int targetId){
+        public void RemoveChild(int targetId)
+        {
             children.Remove(targetId);
         }
 

@@ -15,7 +15,7 @@ namespace Program1
      * problem and display your solution in the correct format.
      */
 
-     //IMPORTANT: the number "-1" is used to denote two things, depending on the field it is in. In the parent field, the process is a parentless process. In any other pcb field, it is empty/unallocated.
+    //IMPORTANT: the number "-1" is used to denote two things, depending on the field it is in. In the parent field, the process is a parentless process. In any other pcb field, it is empty/unallocated.
     public class Version1
     {
         // Declare any class/instance variables that you need here.
@@ -37,23 +37,24 @@ namespace Program1
         /// <param name="parentPid">the PID of the new process's parent</summary>
         /// <returns>return 0 if successful, not 0 if unsuccessful</return>
 
-        int create(int parentPid)
+        public int create(int parentPid)
         {
             // If parentPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
-            if(!pcbArray.Any(p => p.processID == parentPid) && parentPid > 0){
+            if (!pcbArray.Any(p => p.processID == parentPid) && pcbArray.Count > 0)
+            {
                 return 1;
             }
             // Assuming you've found the PCB for parentPid in the PCB array:
             // 1. Allocate and initialize a free PCB object from the array
             //    of PCB objects
             Version1PCB newPCB = new Version1PCB(parentPid, pcbArray.Any(p => p.processID == -1) ? firstNull() : pcbCount);
-            if(pcbArray.Any(p => p.processID == -1)) pcbArray.Find(pcbArray.Where(p => p.processID == -1).First()).Value = newPCB;
+            if (pcbArray.Any(p => p.processID == -1)) pcbArray.Find(pcbArray.Where(p => p.processID == -1).First()).Value = newPCB;
             else pcbArray.AddLast(newPCB);
             // 2. Insert the newly allocated PCB object into parentPid's
             //    list of children
-            pcbArray.ElementAt(parentPid+1).AddChild(newPCB.processID);
+            if(parentPid > -1) pcbArray.ElementAt(parentPid).AddChild(newPCB.processID);
             pcbCount++;
             // You can decide what the return value(s), if any, should be.
             // If you change the return type/value(s), update the XML.
@@ -64,12 +65,13 @@ namespace Program1
         /// descendant processes (child, grandchild, etc.).</summary>
         /// <param name="targetPid">the PID of the process to be destroyed</summary>
         /// <returns>return 0 if successful, not 0 if unsuccessful</return>
-        int destroy(int targetPid)
+        public int destroy(int targetPid)
         {
             // If targetPid is not in the process hierarchy, do nothing; 
             // your code may return an error code or message in this case,
             // but it should not halt
-            if(!pcbArray.Where(p => p.processID == targetPid).Any()){
+            if (!pcbArray.Any(p => p.processID == targetPid))
+            {
                 return 1;
             }
             Version1PCB targetPcb = pcbArray.Where(p => p.processID == targetPid).First();
@@ -77,17 +79,17 @@ namespace Program1
             // 1. Recursively destroy all descendants of targetPid, if it
             //    has any, and mark their PCBs as "free" in the PCB array 
             //    (i.e., deallocate them)
-            foreach (int v in targetPcb.ListChildren())
+            for(int i = targetPcb.ListChildren().Count-1; i >= 0; i--)
             {
-                destroy(v);
-                targetPcb.RemoveChild(v);
+                destroy(targetPcb.ListChildren().ElementAt(i));
             }
+            pcbArray.ElementAt(targetPcb.parent).RemoveChild(targetPcb.processID);
             // 2. Adjust connections within the hierarchy graph as needed to
             //    re-connect the graph
             /* What am I supposed to do about this? */
             // 3. Deallocate targetPid's PCB and mark its PCB array entry
             //    as "free"
-            pcbArray.Find(targetPcb).Value = new Version1PCB(-1,-1);
+            pcbArray.Find(targetPcb).Value = new Version1PCB(-1, -1);
             // You can decide what the return value(s), if any, should be.
             // If you change the return type/value(s), update the XML.
             return 0; // often means "success" or "terminated normally"
@@ -103,17 +105,25 @@ namespace Program1
         * change the return type of this function to return the text to
         * the main program for printing. It's your choice. 
         */
-        void showProcessInfo()
+        public void showProcessInfo()
         {
-            foreach(Version1PCB p in pcbArray){
-                Console.Write(p.processID > -1 ? "Process " + p.processID + ": parent is " + p.parent + " and " + ((p.ListChildren().Count > 0) ? "children are " + p.ListChildren().ToString() : "has no children\n"): ""); 
+            foreach (Version1PCB p in pcbArray)
+            {
+                string children = "" + (p.ListChildren().Any() ? p.ListChildren().First() : "");
+                foreach (int c in p.ListChildren())
+                {
+                    if (c != p.ListChildren().First()) children+= ", "+c;
+                }
+                Console.Write(p.processID > -1 ? "Process " + p.processID + ": parent is " + p.parent + " and " + ((p.ListChildren().Count > 0) ? "children are " + children + "\n" : "has no children\n") : "");
             }
         }
 
-        int firstNull(){
+        int firstNull()
+        {
             int index = 0;
-            while(index < pcbArray.Count){
-                if(pcbArray.ElementAt(index).Equals(null)) break;
+            while (index < pcbArray.Count)
+            {
+                if (pcbArray.ElementAt(index).Equals(null)) break;
                 index++;
             }
             return index;

@@ -10,18 +10,19 @@ namespace Program1
     */
     public class Version2PCB
     {
-        public int parent {get; set;}
-        public int firstChild {get; set;}
-        public int youngerSibling {get; set;}
-        public int olderSibling {get; set;}
+        public int parent { get; set; }
+        public int firstChild { get; set; }
+        public int youngerSibling { get; set; }
+        public int olderSibling { get; set; }
         public int processID { get; set; }
-        
+
         public Version2PCB(int p, int i)
         {
             parent = p;
             processID = i;
             firstChild = -1;
             youngerSibling = -1;
+            olderSibling = -1;
         }
     }
 }
