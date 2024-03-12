@@ -21,7 +21,7 @@ namespace Program2
         public Producer(int n, int k, int t, int[] buffer)
         {
             next_in = 0;
-            pThread = new Thread(() => Run(n,k,t,buffer));
+            pThread = new Thread(new ParameterizedThreadStart((ThreadProc) => Run(n, k, t, buffer)));
         }
 
         /**
@@ -31,15 +31,16 @@ namespace Program2
          */
         public void Run(int n, int k, int t, int[] buffer)
         {
-                Random rand = new Random();
-                int k1 = rand.Next(1, k + 1);
-                for (int i = 0; i< k1; i++)
-                {
-                    buffer[(next_in + i) % n]++;
-                }
-                next_in = (next_in + k1) % n;
-                int t1 = rand.Next(t);
-                Thread.Sleep(t1*1000);
+            Thread.Sleep(Timeout.Infinite);
+            Random rand = new Random();
+            int k1 = rand.Next(1, k + 1);
+            for (int i = 0; i < k1; i++)
+            {
+                buffer[(next_in + i) % n]++;
+            }
+            next_in = (next_in + k1) % n;
+            int t1 = rand.Next(t);
+            Thread.Sleep(t1 * 1000);
         }
 
         /* If you need or want more methods, feel free to add them. */

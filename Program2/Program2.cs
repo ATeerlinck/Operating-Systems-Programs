@@ -42,11 +42,11 @@ namespace Program2
             // contents of the buffer on one long line. There should be one
             // 0 value for each buffer element. See the Program 2 page on
             // Canvas for the required format.
-            Console.WriteLine("Buffer is Created. Initial Buffer: {0}", buffer.ToString());
+            Console.WriteLine("Buffer is Created. Initial Buffer:\n {0}", string.Join("",buffer));
             // 4. Create and start the producer thread.
             // 5. Create and start the consumer thread.
-            Producer p = new(n,t,k,buffer);
-            Consumer c = new(n,t,k,buffer);
+            Producer p = new(n, t, k, buffer);
+            Consumer c = new(n, t, k, buffer);
             TimeSpan start = DateTime.Now.TimeOfDay;
             // 6. After 90 seconds, send a signal to the producer and consumer
             // threads to stop running. (Alternatively, you may have the
@@ -54,14 +54,14 @@ namespace Program2
             // themselves 90 seconds after they start running.)
             while (DateTime.Now.TimeOfDay.TotalMilliseconds - start.TotalMilliseconds <= 90000)
             {
-                p.pThread.Start();
-                c.cThread.Start();
+                if(!p.pThread.IsAlive)p.pThread.Start();
+                if(!p.pThread.IsAlive)c.cThread.Start();
             }
-
+            p.pThread.;
 
             // 7. Display the values in the buffer. Use the format that is shown
             // on the Program 2 page on Canvas.
-            Console.WriteLine("Final Buffer Contents: {0}", buffer.ToString());
+            Console.WriteLine("Final Buffer Contents:\n {0}", string.Join("",buffer));
             // 8. Do any necessary "cleanup" work.
 
             Console.WriteLine("Program is finished.");
