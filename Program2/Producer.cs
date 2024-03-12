@@ -11,8 +11,9 @@ namespace Program2
     public class Producer
     {
         // Declare any class/instance variables that you need here.
-        int next_in;
+        private int next_in;
         public Thread pThread;
+        public AutoResetEvent bufferFull = new AutoResetEvent(false);
         /**
          * Default constructor. Use this to do any allocation and
          * initialization that is needed. If you need more constructors
@@ -31,13 +32,18 @@ namespace Program2
          */
         public void Run(int n, int k, int t, int[] buffer)
         {
-            Thread.Sleep(Timeout.Infinite);
             Random rand = new Random();
             int k1 = rand.Next(1, k + 1);
             for (int i = 0; i < k1; i++)
             {
+                if (buffer[(next_in + i) % n] != 0)
+                {
+                    WaitHandle.WaitAll([bufferFull]);
+                    bufferFull.Set();
+                }
                 buffer[(next_in + i) % n]++;
             }
+
             next_in = (next_in + k1) % n;
             int t1 = rand.Next(t);
             Thread.Sleep(t1 * 1000);

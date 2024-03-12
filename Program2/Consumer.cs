@@ -9,9 +9,10 @@ namespace Program2
     public class Consumer
     {
         // Declare any class/instance variables that you need here.
-        int next_out;
+        private int next_out;
         public Thread cThread;
-        
+        public AutoResetEvent bufferEmpty = new AutoResetEvent(false);
+
         /**
          * Default constructor. Use this to do any allocation and
          * initialization that is needed. If you need more constructors
@@ -21,6 +22,7 @@ namespace Program2
         {
             next_out = 0;
             cThread = new Thread(new ParameterizedThreadStart((ThreadProc) => Run(n, k, t, buffer)));
+
         }
 
         /**
@@ -30,7 +32,7 @@ namespace Program2
          */
         public void Run(int n, int k, int t, int[] buffer)
         {
-            Thread.Sleep(Timeout.Infinite);
+
             while (true)
             {
                 Random rand = new Random();
@@ -40,7 +42,11 @@ namespace Program2
                 for (int i = 0; i < k2; i++)
                 {
                     int data = buffer[(next_out + i) % n];
-                    if (data > 1) Console.WriteLine("Race condition!");
+                    if (data == 0)
+                    {
+                        WaitHandle.WaitAll([bufferEmpty]);
+                        bufferEmpty.Set();
+                    }
                     buffer[(next_out + i) % n] = 0;
                 }
                 next_out = (next_out + k2) % n;

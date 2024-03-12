@@ -47,6 +47,7 @@ namespace Program2
             // 5. Create and start the consumer thread.
             Producer p = new(n, t, k, buffer);
             Consumer c = new(n, t, k, buffer);
+            WaitHandle[] waitHandles = new WaitHandle[] {p.bufferFull, c.bufferEmpty};
             TimeSpan start = DateTime.Now.TimeOfDay;
             // 6. After 90 seconds, send a signal to the producer and consumer
             // threads to stop running. (Alternatively, you may have the
@@ -54,11 +55,11 @@ namespace Program2
             // themselves 90 seconds after they start running.)
             while (DateTime.Now.TimeOfDay.TotalMilliseconds - start.TotalMilliseconds <= 90000)
             {
-                if(!p.pThread.IsAlive)p.pThread.Start();
-                if(!p.pThread.IsAlive)c.cThread.Start();
+                WaitHandle.WaitAny(waitHandles);
+                p.pThread.Start();
+                c.cThread.Start();
             }
-            p.pThread.Interrupt();
-            c.cThread.Interrupt(); // look into cancellation tokens
+            // look into cancellation tokens
             // 7. Display the values in the buffer. Use the format that is shown
             // on the Program 2 page on Canvas.
             Console.WriteLine("Final Buffer Contents:\n {0}", string.Join("",buffer));
