@@ -1,6 +1,6 @@
 using System;
+using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading; // for thread support
 
 namespace Program2
@@ -26,38 +26,42 @@ namespace Program2
         public static void Main()
         {
             // Declare any class/instance variables that you need here.
-
             // 1. Ask the user to enter the three parameters described in the
             // Parameters section, then receive those parameters. Use a 
             // separate prompt message and a separate input call for each
             // parameter.
-
-
+            Console.WriteLine("Buffer Size (n):");
+            int n = int.Parse(Console.ReadLine());
+            Console.WriteLine("Maximum Burst (k):");
+            int k = int.Parse(Console.ReadLine());
+            Console.WriteLine("Maximum Sleep Time (t):");
+            int t = int.Parse(Console.ReadLine());
             // 2. Create the buffer and initialize each element to 0.
-
-
+            int[] buffer = new int[20];
             // 3. To confirm that each element is initialized, display the
             // contents of the buffer on one long line. There should be one
             // 0 value for each buffer element. See the Program 2 page on
             // Canvas for the required format.
-
-
+            Console.WriteLine("Buffer is Created. Initial Buffer: {0}", buffer.ToString());
             // 4. Create and start the producer thread.
-
-
             // 5. Create and start the consumer thread.
-
-
+            Producer p = new(n,t,k,buffer);
+            Consumer c = new(n,t,k,buffer);
+            TimeSpan start = DateTime.Now.TimeOfDay;
             // 6. After 90 seconds, send a signal to the producer and consumer
             // threads to stop running. (Alternatively, you may have the
             // producer and consumer threads keep track of time and stop
             // themselves 90 seconds after they start running.)
+            while (DateTime.Now.TimeOfDay.TotalMilliseconds - start.TotalMilliseconds <= 90000)
+            {
+                p.pThread.Start();
+                c.cThread.Start();
+            }
 
 
             // 7. Display the values in the buffer. Use the format that is shown
             // on the Program 2 page on Canvas.
-
-
+            Console.WriteLine("Final Buffer Contents: {0}", buffer.ToString());
             // 8. Do any necessary "cleanup" work.
 
             Console.WriteLine("Program is finished.");
