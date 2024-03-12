@@ -57,8 +57,8 @@ namespace Program2
                 if(!p.pThread.IsAlive)p.pThread.Start();
                 if(!p.pThread.IsAlive)c.cThread.Start();
             }
-            p.pThread.;
-
+            p.pThread.Interrupt();
+            c.cThread.Interrupt(); // look into cancellation tokens
             // 7. Display the values in the buffer. Use the format that is shown
             // on the Program 2 page on Canvas.
             Console.WriteLine("Final Buffer Contents:\n {0}", string.Join("",buffer));
