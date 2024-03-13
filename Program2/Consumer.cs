@@ -1,6 +1,8 @@
 /* COMPSCI 424 Program 2
  * Name:
  */
+using System.Formats.Tar;
+
 namespace Program2
 {
     /**
@@ -10,7 +12,6 @@ namespace Program2
     {
         // Declare any class/instance variables that you need here.
         private int next_out;
-        public Thread cThread;
         public AutoResetEvent bufferEmpty = new AutoResetEvent(false);
 
         /**
@@ -18,22 +19,18 @@ namespace Program2
          * initialization that is needed. If you need more constructors
          * than this, feel free to add other constructors.
          */
-        public Consumer(int n, int k, int t, int[] buffer)
+        public Consumer()
         {
             next_out = 0;
-            cThread = new Thread(new ParameterizedThreadStart((ThreadProc) => Run(n, k, t, buffer)));
-
         }
-
         /**
          * Essentially the "main method" for this thread. Call this 
 		 * method (or another method) when you start the producer 
          * thread. May accept arguments; must return void.
          */
-        public void Run(int n, int k, int t, int[] buffer)
+        public void Run(int n, int k, int t, int[] buffer,CancellationToken token)
         {
-
-            while (true)
+            while(!token.IsCancellationRequested)
             {
                 Random rand = new Random();
                 int t2 = rand.Next(1, t + 1);
@@ -44,14 +41,13 @@ namespace Program2
                     int data = buffer[(next_out + i) % n];
                     if (data == 0)
                     {
+                        Console.WriteLine(string.Join("",buffer));
                         WaitHandle.WaitAll([bufferEmpty]);
-                        bufferEmpty.Set();
                     }
                     buffer[(next_out + i) % n] = 0;
                 }
                 next_out = (next_out + k2) % n;
             }
-
         }
 
         /* If you need or want more methods, feel free to add them. */
