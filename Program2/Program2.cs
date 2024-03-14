@@ -26,7 +26,8 @@ namespace Program2
         public static void Main()
         {
             // Declare any class/instance variables that you need here.
-            CancellationTokenSource cancel = new CancellationTokenSource();
+            //CancellationTokenSource cancel = new CancellationTokenSource();
+            //SemaphoreSlim sem = new SemaphoreSlim(1);
 
             // 1. Ask the user to enter the three parameters described in the
             // Parameters section, then receive those parameters. Use a 
@@ -38,20 +39,25 @@ namespace Program2
             int k = int.Parse(Console.ReadLine());
             Console.WriteLine("Maximum Sleep Time (t):");
             int t = int.Parse(Console.ReadLine());
+
             // 2. Create the buffer and initialize each element to 0.
             int[] buffer = new int[20];
+
             // 3. To confirm that each element is initialized, display the
             // contents of the buffer on one long line. There should be one
             // 0 value for each buffer element. See the Program 2 page on
             // Canvas for the required format.
-            Console.WriteLine("Buffer is Created. Initial Buffer:\n{0}", string.Join("",buffer));
+            Console.WriteLine("Buffer is Created. Initial Buffer:\n{0}", string.Join("", buffer));
+
             // 4. Create and start the producer thread.
-            // 5. Create and start the consumer thread.
             Producer p = new();
+            var pThread = new Thread(() => p.Run(n, k, t, buffer));
+
+            // 5. Create and start the consumer thread.
             Consumer c = new();
-            var pThread = new Thread(() => p.Run(n,k,t,buffer, cancel.Token));
-            var cThread = new Thread(() => p.Run(n,k,t,buffer, cancel.Token));
+            var cThread = new Thread(() => c.Run(n, k, t, buffer));
             TimeSpan start = DateTime.Now.TimeOfDay;
+
             // 6. After 90 seconds, send a signal to the producer and consumer
             // threads to stop running. (Alternatively, you may have the
             // producer and consumer threads keep track of time and stop
@@ -60,17 +66,19 @@ namespace Program2
             cThread.Start();
             while (DateTime.Now.TimeOfDay.TotalMilliseconds - start.TotalMilliseconds <= 90000)
             {
-                if(buffer.Contains(0))p.bufferFull.Set();
-                if(buffer.Contains(1))c.bufferEmpty.Set();
+                if (buffer.Contains(0)) p.bufferFull.Set();
+                if (buffer.Contains(1)) c.bufferEmpty.Set();
             }
-            cancel.Cancel();
-            // look into cancellation tokens
+            pThread.Join();
+            cThread.Join();
             // 7. Display the values in the buffer. Use the format that is shown
             // on the Program 2 page on Canvas.
-            Console.WriteLine("Final Buffer Contents:\n{0}", string.Join("",buffer));
-            // 8. Do any necessary "cleanup" work.
-            Console.WriteLine("Program is finished.");
+            Console.WriteLine("Final Buffer Contents:\n{0}", string.Join("", buffer));
             
+            // 8. Do any necessary "cleanup" work.
+            //cancel.Cancel();
+            Console.WriteLine("Program is finished.");
+            return;
         }
     }
 }

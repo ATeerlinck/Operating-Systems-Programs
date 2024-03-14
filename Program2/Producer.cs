@@ -30,9 +30,9 @@ namespace Program2
 		 * method (or another method) when you start the producer 
          * thread. May accept arguments; must return void.
          */
-        public void Run(int n, int k, int t, int[] buffer, CancellationToken token)
+        public void Run(int n, int k, int t, int[] buffer)
         {
-            while(!token.IsCancellationRequested){
+            while(true){
             Random rand = new Random();
             int k1 = rand.Next(1, k + 1);
             for (int i = 0; i < k1; i++)
@@ -40,7 +40,7 @@ namespace Program2
                 if(buffer[(next_in + i) % n] != 0)
                 {
                     Console.WriteLine(string.Join("",buffer));
-                    WaitHandle.WaitAll([bufferFull]);
+                    bufferFull.WaitOne();
                 }
                 buffer[(next_in + i) % n]+= 1;
             }
