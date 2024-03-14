@@ -26,8 +26,8 @@ namespace Program2
         public static void Main()
         {
             // Declare any class/instance variables that you need here.
-            //CancellationTokenSource cancel = new CancellationTokenSource();
-            //SemaphoreSlim sem = new SemaphoreSlim(1);
+            CancellationTokenSource cancel = new();
+            SemaphoreSlim sem = new(1);
 
             // 1. Ask the user to enter the three parameters described in the
             // Parameters section, then receive those parameters. Use a 
@@ -51,11 +51,11 @@ namespace Program2
 
             // 4. Create and start the producer thread.
             Producer p = new();
-            var pThread = new Thread(() => p.Run(n, k, t, buffer));
+            var pThread = new Thread(() => p.Run(n, k, t, buffer, sem, cancel.Token));
 
             // 5. Create and start the consumer thread.
             Consumer c = new();
-            var cThread = new Thread(() => c.Run(n, k, t, buffer));
+            var cThread = new Thread(() => c.Run(n, k, t, buffer, sem, cancel.Token));
             TimeSpan start = DateTime.Now.TimeOfDay;
 
             // 6. After 90 seconds, send a signal to the producer and consumer
@@ -66,17 +66,15 @@ namespace Program2
             cThread.Start();
             while (DateTime.Now.TimeOfDay.TotalMilliseconds - start.TotalMilliseconds <= 90000)
             {
-                if (buffer.Contains(0)) p.bufferFull.Set();
-                if (buffer.Contains(1)) c.bufferEmpty.Set();
+                //nothing happens here on this thread
             }
-            pThread.Join();
-            cThread.Join();
             // 7. Display the values in the buffer. Use the format that is shown
             // on the Program 2 page on Canvas.
             Console.WriteLine("Final Buffer Contents:\n{0}", string.Join("", buffer));
-            
+
             // 8. Do any necessary "cleanup" work.
-            //cancel.Cancel();
+            cancel.Cancel();
+            cancel.Dispose();
             Console.WriteLine("Program is finished.");
             return;
         }

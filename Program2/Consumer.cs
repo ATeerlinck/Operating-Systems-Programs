@@ -28,25 +28,32 @@ namespace Program2
 		 * method (or another method) when you start the producer 
          * thread. May accept arguments; must return void.
          */
-        public void Run(int n, int k, int t, int[] buffer)
+        public void Run(int n, int k, int t, int[] buffer, SemaphoreSlim sem, CancellationToken token)
         {
-            while(true)
+            while (true)
             {
-                Random rand = new Random();
-                int t2 = rand.Next(1, t + 1);
-                Thread.Sleep(t2 * 1000);
-                int k2 = rand.Next(1, k + 1);
-                for (int i = 0; i < k2; i++)
+                if (token.IsCancellationRequested) return;
+                else
                 {
-                    int data = buffer[(next_out + i) % n];
-                    if (data == 0)
+                    Random rand = new Random();
+                    int t2 = rand.Next(1, t + 1);
+                    Thread.Sleep(t2 * 1000);
+                    sem.WaitAsync(token);
+                    int k2 = rand.Next(1, k + 1);
+                    for (int i = 0; i < k2; i++)
                     {
-                        Console.WriteLine(string.Join("",buffer));
-                        bufferEmpty.WaitOne();
+                        int data = buffer[(next_out + i) % n];
+                        if (data == 0)
+                        {
+                            Console.WriteLine("c: " + string.Join("", buffer));
+                            k2 = i;
+                            Thread.Sleep(2000);
+                        }
+                        else buffer[(next_out + i) % n] = 0;
                     }
-                    buffer[(next_out + i) % n] = 0;
+                    next_out = (next_out + k2) % n;
+                    sem.Release();
                 }
-                next_out = (next_out + k2) % n;
             }
         }
 
